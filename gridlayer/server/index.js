@@ -38,7 +38,7 @@ var server_instance = new createServer(express());
 //server_instance.app.use('/proxy', proxy);
 server_instance.app.route('/data').get(function (req, res) {
     _csv.parse('./data/TUG_NRT_20170505.csv', function (data) {
-        console.log(data);
+        //console.log(data)
         res.send(data);
     });
 });

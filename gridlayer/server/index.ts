@@ -46,7 +46,7 @@ var server_instance = new (createServer as any)(express());
 
 server_instance.app.route('/data').get((req, res) => {
   _csv.parse('./data/TUG_NRT_20170505.csv', (data)=>{
-    console.log(data)
+    //console.log(data)
     res.send(data)
   });
 })

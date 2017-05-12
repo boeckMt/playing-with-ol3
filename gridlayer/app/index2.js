@@ -2,20 +2,15 @@
 var epsg = 'EPSG:4326';
 //geojson
 var GEOJSON = new ol.format.GeoJSON();
-var points = createPoints(1);
-console.log(points);
-var pontsjson = reducePoints(points); //
-console.log(pontsjson);
+//var points = createPoints(1);
+//console.log(points)
+//var pontsjson = reducePoints(points); //
+//console.log(pontsjson)
+//http://localhost:9001/data/
 /*
 var placesSource = new ol.source.Vector({
     features: GEOJSON.readFeatures(pontsjson)
 });
-*/
-/*
-var places = new ol.layer.Grid({
-    source: placesSource,
-    id: "places"
-})
 */
 // create baselayer and Map
 var raster = new ol.layer.Tile({
@@ -40,19 +35,48 @@ var map = new ol.Map({
         zoom: 3
     })
 });
+var makeRequest = function () {
+    httpRequest = new XMLHttpRequest();
+    if (!httpRequest) {
+        alert('Giving up :( Cannot create an XMLHTTP instance');
+        return false;
+    }
+    httpRequest.onreadystatechange = handleRequest;
+    httpRequest.open('GET', 'http://localhost:9001/data/');
+    httpRequest.send();
+};
+var handleRequest = function () {
+    if (httpRequest.readyState === XMLHttpRequest.DONE) {
+        if (httpRequest.status === 200) {
+            console.log(httpRequest.responseText);
+            var pontsjson = httpRequest.responseText;
+            var placesSource = new ol.source.Vector({
+                features: GEOJSON.readFeatures(pontsjson),
+                wrapX: false
+            });
+            var places = new ol.layer.Grid({
+                source: placesSource,
+                id: "places"
+            });
+            map.addLayer(places);
+        }
+        else {
+            console.log('There was a problem with the request.');
+        }
+    }
+};
+//request on static_base_directory
+makeRequest();
 //click on features
-/*
-map.on("click", (e) => {
+map.on("click", function (e) {
     //forEachFeatureAtPixel(pixel, callback, opt_options)
-    map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
-        console.log(feature.get('value')) //
+    map.forEachFeatureAtPixel(e.pixel, function (feature, layer) {
+        console.log(feature.get('value')); //
     }, {
-            layerFilter: (layer) => {
-                //console.log(layer.get('id'))
-                return layer.getSource() instanceof ol.source.Vector;
-            },
-            hitTolerance: 0
-        })
-
+        layerFilter: function (layer) {
+            //console.log(layer.get('id'))
+            return layer.getSource() instanceof ol.source.Vector;
+        },
+        hitTolerance: 0
+    });
 });
-*/

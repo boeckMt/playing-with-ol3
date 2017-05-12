@@ -10,7 +10,8 @@
  */
 ol.layer.Grid = function (options) {
     var _options = options ? options : {};
-    var baseOptions = ol.obj.assign({}, options);
+    //var baseOptions = ol.obj.assign({}, options);
+    var baseOptions = window.Object.assign({}, options);
     ol.layer.Vector.call(this, /** @type {olx.layer.VectorOptions} */ (baseOptions));
     //drawCell(this)
     this.drawGrid(1);
@@ -45,37 +46,38 @@ ol.layer.Grid.prototype.drawGrid = function (cellsize) {
     });
 };
 ol.layer.Grid.prototype.style = function (feature, resolution) {
-    var opacity = 0.6;
-    var colors = [
-        [254, 240, 217, opacity],
-        [253, 212, 158, opacity],
-        [253, 187, 132, opacity],
-        [252, 141, 89, opacity],
-        [227, 74, 51, opacity],
-        [179, 0, 0, opacity]
-    ];
+    /*
+      var opacity = 0.8;
+        var colors = [
+            [254, 240, 217, opacity],
+            [253, 212, 158, opacity],
+            [253, 187, 132, opacity],
+            [252, 141, 89, opacity],
+            [227, 74, 51, opacity],
+            [179, 0, 0, opacity]
+        ]
+    */
     var fill = new ol.style.Fill();
     var style = new ol.style.Style({
         fill: fill
     });
     var value = feature.get('value');
-    if (value >= 0 && value < 10) {
-        fill.setColor(colors[0]);
-    }
-    else if (value >= 10 && value < 20) {
-        fill.setColor(colors[1]);
-    }
-    else if (value >= 20 && value < 40) {
-        fill.setColor(colors[2]);
-    }
-    else if (value >= 40 && value < 60) {
-        fill.setColor(colors[3]);
-    }
-    else if (value >= 60 && value < 80) {
-        fill.setColor(colors[4]);
-    }
-    else if (value >= 80) {
-        fill.setColor(colors[5]);
-    }
+    var color = feature.get('color');
+    fill.setColor(color);
+    /*
+        if (value >= 0 && value < 10) {
+            fill.setColor(colors[0]);
+        } else if (value >= 10 && value < 20) {
+            fill.setColor(colors[1]);
+        } else if (value >= 20 && value < 40) {
+            fill.setColor(colors[2]);
+        } else if (value >= 40 && value < 60) {
+            fill.setColor(colors[3]);
+        } else if (value >= 60 && value < 80) {
+            fill.setColor(colors[4]);
+        } else if (value >= 80) {
+            fill.setColor(colors[5]);
+        }
+    */
     return style;
 };

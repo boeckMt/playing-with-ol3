@@ -13,7 +13,8 @@ declare var ol: any, turf: any;
  */
 ol.layer.Grid = function(options: any) {
     var _options = options ? options : {};
-    var baseOptions = ol.obj.assign({}, options);
+    //var baseOptions = ol.obj.assign({}, options);
+    var baseOptions = (window as any).Object.assign({},options);
     ol.layer.Vector.call(this, /** @type {olx.layer.VectorOptions} */(baseOptions));
     //drawCell(this)
     this.drawGrid(1)
@@ -53,7 +54,8 @@ ol.layer.Grid.prototype.drawGrid = function(cellsize?: number) {
 }
 
 ol.layer.Grid.prototype.style = function(feature, resolution) {
-    var opacity = 0.6;
+/*
+  var opacity = 0.8;
     var colors = [
         [254, 240, 217, opacity],
         [253, 212, 158, opacity],
@@ -62,6 +64,7 @@ ol.layer.Grid.prototype.style = function(feature, resolution) {
         [227, 74, 51, opacity],
         [179, 0, 0, opacity]
     ]
+*/
 
     var fill = new ol.style.Fill();
     var style = new ol.style.Style({
@@ -69,6 +72,9 @@ ol.layer.Grid.prototype.style = function(feature, resolution) {
     });
 
     var value = feature.get('value');
+    var color = feature.get('color');
+    fill.setColor(color);
+/*
     if (value >= 0 && value < 10) {
         fill.setColor(colors[0]);
     } else if (value >= 10 && value < 20) {
@@ -82,5 +88,6 @@ ol.layer.Grid.prototype.style = function(feature, resolution) {
     } else if (value >= 80) {
         fill.setColor(colors[5]);
     }
+*/
     return style;
 }
