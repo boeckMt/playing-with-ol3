@@ -1,39 +1,38 @@
 /// <reference path="createsamplepoints.ts"/>
-
-
-declare var ol: any, turf: any;
-
-
 var epsg = 'EPSG:4326';
 //geojson
 var GEOJSON = new ol.format.GeoJSON();
-
-
 var points = createPoints(1);
-
-var pontsjson = reducePoints(points, checkIfInPoly); //
-
+console.log(points);
+var pontsjson = reducePoints(points); //
+console.log(pontsjson);
+/*
 var placesSource = new ol.source.Vector({
     features: GEOJSON.readFeatures(pontsjson)
 });
+*/
+/*
 var places = new ol.layer.Grid({
     source: placesSource,
     id: "places"
 })
-
-
-
+*/
 // create baselayer and Map
 var raster = new ol.layer.Tile({
-    source: new ol.source.OSM({
+    source: new ol.source.TileWMS({
+        url: 'https://ahocevar.com/geoserver/wms',
+        params: {
+            'LAYERS': 'ne:NE1_HR_LC_SR_W_DR',
+            'TILED': true
+        },
         wrapX: false
     }),
-    id: 'osm'
+    id: 'topo'
 });
-
 var map = new ol.Map({
     //layers: [raster, bbox, vector, places],
-    layers: [raster, places],
+    //layers: [raster, places],
+    layers: [raster],
     target: 'map',
     view: new ol.View({
         projection: epsg,
@@ -41,9 +40,8 @@ var map = new ol.Map({
         zoom: 3
     })
 });
-
-
 //click on features
+/*
 map.on("click", (e) => {
     //forEachFeatureAtPixel(pixel, callback, opt_options)
     map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
@@ -57,3 +55,4 @@ map.on("click", (e) => {
         })
 
 });
+*/
