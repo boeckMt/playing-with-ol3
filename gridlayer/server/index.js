@@ -37,9 +37,19 @@ var proxy = (req, res)=>{
 var server_instance = new createServer(express());
 //server_instance.app.use('/proxy', proxy);
 server_instance.app.route('/data').get(function (req, res) {
-    _csv.parse('./data/TUG_NRT_20170505.csv', function (data) {
+    var _date = req.param('date');
+    var filename = _csv.getFileFromDate(_date);
+    if (!_date) {
+        return;
+    }
+    _csv.parse("./data/" + filename, function (data) {
         //console.log(data)
         res.send(data);
+    });
+});
+server_instance.app.route('/times').get(function (req, res) {
+    _csv.getTimes('./data/', function (files) {
+        res.send(files);
     });
 });
 server_instance.serve();

@@ -34,6 +34,39 @@ var CsvToLayer = (function () {
         });
         stream.pipe(csvStream);
     };
+    CsvToLayer.prototype.getTimes = function (path, cb) {
+        var _this = this;
+        fs.readdir(path, function (err, files) {
+            if (err) {
+                return;
+            }
+            var _dates = [];
+            for (var i = 0; i < files.length; i++) {
+                _dates.push(_this.getDateFromName(files[i]));
+            }
+            _dates.sort();
+            cb(_dates);
+        });
+    };
+    CsvToLayer.prototype.getDateFromName = function (filename) {
+        var reg = /\d{4}\d{2}\d{2}/;
+        var reg2 = /\d{4}\/\d{2}\/\d{2}/;
+        var match = filename.match(reg);
+        if (match[0]) {
+            var _date = match[0];
+            var date = _date.slice(0, 4) + "/" + _date.slice(4, 6) + "/" + _date.slice(6, 8);
+            return date;
+        }
+        else {
+            return match;
+        }
+    };
+    // yyyy/mm/dd
+    CsvToLayer.prototype.getFileFromDate = function (date) {
+        var _date = date.replace('/', '');
+        var filename = "EGSIEM_NRT_MFE_" + _date + ".csv";
+        return filename;
+    };
     CsvToLayer.prototype.getColor = function (value) {
         var opacity = 1;
         var colors = [
@@ -102,13 +135,6 @@ var CsvToLayer = (function () {
                 this.FeatureCollection.features.push(this.createFeature({ lat: _y, lng: _x }, { value: _value, color: this.getColor(_value) }));
             }
             _x += cellsize;
-        }
-    };
-    CsvToLayer.prototype.checkValue = function (value) {
-        if (value > 0) {
-            var point = { lat: 90, lng: -180 };
-            var feature = this.createFeature(point, { wetness: value });
-            this.FeatureCollection.features.push(point);
         }
     };
     CsvToLayer.prototype.createFeature = function (point, attributes) {

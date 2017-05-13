@@ -35,38 +35,21 @@ var map = new ol.Map({
         zoom: 3
     })
 });
-var makeRequest = function () {
-    httpRequest = new XMLHttpRequest();
-    if (!httpRequest) {
-        alert('Giving up :( Cannot create an XMLHTTP instance');
-        return false;
-    }
-    httpRequest.onreadystatechange = handleRequest;
-    httpRequest.open('GET', 'http://localhost:9001/data/');
-    httpRequest.send();
-};
-var handleRequest = function () {
-    if (httpRequest.readyState === XMLHttpRequest.DONE) {
-        if (httpRequest.status === 200) {
-            console.log(httpRequest.responseText);
-            var pontsjson = httpRequest.responseText;
-            var placesSource = new ol.source.Vector({
-                features: GEOJSON.readFeatures(pontsjson),
-                wrapX: false
-            });
-            var places = new ol.layer.Grid({
-                source: placesSource,
-                id: "places"
-            });
-            map.addLayer(places);
-        }
-        else {
-            console.log('There was a problem with the request.');
-        }
-    }
-};
-//request on static_base_directory
-makeRequest();
+//------------------------------------------------------------------------------
+var urlParam = location.search.split('=')[1];
+$.get("http://localhost:9001/data?date=" + urlParam, function (data) {
+    console.log(data);
+    var pontsjson = data;
+    var placesSource = new ol.source.Vector({
+        features: GEOJSON.readFeatures(pontsjson),
+        wrapX: false
+    });
+    var places = new ol.layer.Grid({
+        source: placesSource,
+        id: "places"
+    });
+    map.addLayer(places);
+});
 //click on features
 map.on("click", function (e) {
     //forEachFeatureAtPixel(pixel, callback, opt_options)
