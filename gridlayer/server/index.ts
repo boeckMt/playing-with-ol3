@@ -47,13 +47,15 @@ var server_instance = new (createServer as any)(express());
 server_instance.app.route('/data').get((req, res) => {
   var _date = req.param('date');
   var filename = _csv.getFileFromDate(_date);
-  if (!_date) {
+  console.log(_date)
+  if (!_date || _date == 'undefined') {
     return;
+  } else {
+    _csv.parse(`./data/${filename}`, (data) => {
+      //console.log(data)
+      res.send(data)
+    });
   }
-  _csv.parse(`./data/${filename}`, (data) => {
-    //console.log(data)
-    res.send(data)
-  });
 })
 
 server_instance.app.route('/times').get((req, res) => {

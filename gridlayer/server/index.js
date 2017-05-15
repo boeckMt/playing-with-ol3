@@ -39,13 +39,16 @@ var server_instance = new createServer(express());
 server_instance.app.route('/data').get(function (req, res) {
     var _date = req.param('date');
     var filename = _csv.getFileFromDate(_date);
-    if (!_date) {
+    console.log(_date);
+    if (!_date || _date == 'undefined') {
         return;
     }
-    _csv.parse("./data/" + filename, function (data) {
-        //console.log(data)
-        res.send(data);
-    });
+    else {
+        _csv.parse("./data/" + filename, function (data) {
+            //console.log(data)
+            res.send(data);
+        });
+    }
 });
 server_instance.app.route('/times').get(function (req, res) {
     _csv.getTimes('./data/', function (files) {
