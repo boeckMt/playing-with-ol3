@@ -17,7 +17,8 @@ ol.layer.Grid = function (options) {
     this.drawGrid(1);
     this.setStyle(this.style);
 };
-ol.inherits(ol.layer.Grid, ol.layer.Vector);
+//ol.inherits(ol.layer.Grid, ol.layer.Vector);
+ol.inherits(ol.layer.Grid, ol.layer.Image);
 ol.layer.Grid.prototype.drawCell = function (x, y, radius) {
     var x_min = x - radius, x_max = x + radius, y_min = y - radius, y_max = y + radius;
     var poly = new ol.geom.Polygon([

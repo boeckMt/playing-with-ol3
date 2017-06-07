@@ -17,6 +17,9 @@ var CsvToLayer = (function () {
     data [360:[]]
     value:The index expresses the deviation of the GRACE-derived total water storage anomaly (TWSA) from the mean seasonal cycle in units of standard deviation.
     */
+    CsvToLayer.prototype.clearFeatureCollection = function () {
+        this.FeatureCollection.features.length = 0;
+    };
     CsvToLayer.prototype.parse = function (path, cb) {
         var _this = this;
         var line = 0;
@@ -31,6 +34,7 @@ var CsvToLayer = (function () {
             .on("end", function () {
             console.log("done");
             cb(_this.FeatureCollection);
+            _this.clearFeatureCollection();
         });
         stream.pipe(csvStream);
     };
@@ -132,12 +136,13 @@ var CsvToLayer = (function () {
                 //this.FeatureCollection.features.push(this.createFeature({lat:_y, lng:_x},{value:_value, color: this.getColor(_value)}))
             }
             else {
-                this.FeatureCollection.features.push(this.createFeature({ lat: _y, lng: _x }, { value: _value, color: this.getColor(_value) }));
+                //this.FeatureCollection.features.push(this.createPointFeature({ lat: _y, lng: _x }, { value: _value, color: this.getColor(_value) }))
+                this.FeatureCollection.features.push(this.createPolyFeature({ lat: _y, lng: _x }, { value: _value, color: this.getColor(_value) }));
             }
             _x += cellsize;
         }
     };
-    CsvToLayer.prototype.createFeature = function (point, attributes) {
+    CsvToLayer.prototype.createPointFeature = function (point, attributes) {
         return {
             "type": "Feature",
             "properties": attributes,
@@ -149,6 +154,25 @@ var CsvToLayer = (function () {
                 ]
             }
         };
+    };
+    CsvToLayer.prototype.createPolyFeature = function (point, attributes) {
+        return {
+            "type": "Feature",
+            "properties": attributes,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    this.drawCell(point.lng, point.lat, 0.5)
+                ]
+            }
+        };
+    };
+    CsvToLayer.prototype.drawCell = function (x, y, radius) {
+        var x_min = x - radius, x_max = x + radius, y_min = y - radius, y_max = y + radius;
+        var poly = [
+            [x_min, y_max], [x_max, y_max], [x_max, y_min], [x_min, y_min], [x_min, y_max]
+        ];
+        return poly;
     };
     return CsvToLayer;
 }());

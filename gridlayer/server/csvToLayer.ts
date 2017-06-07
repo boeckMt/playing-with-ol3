@@ -23,6 +23,11 @@ export class CsvToLayer implements ICsvToLayer {
   data [360:[]]
   value:The index expresses the deviation of the GRACE-derived total water storage anomaly (TWSA) from the mean seasonal cycle in units of standard deviation.
   */
+
+  clearFeatureCollection() {
+    this.FeatureCollection.features.length = 0;
+  }
+
   parse(path: string, cb: Function) {
     var line = 0;
     var stream = fs.createReadStream(path);
@@ -36,6 +41,7 @@ export class CsvToLayer implements ICsvToLayer {
       .on("end", () => {
         console.log("done");
         cb(this.FeatureCollection);
+        this.clearFeatureCollection();
       });
     stream.pipe(csvStream);
   }
@@ -70,7 +76,7 @@ export class CsvToLayer implements ICsvToLayer {
 
   // yyyy/mm/dd
   getFileFromDate(date: string) {
-    var _date = date.replace('/','');
+    var _date = date.replace('/', '');
     var filename = `EGSIEM_NRT_MFE_${_date}.csv`;
     return filename;
   }
@@ -134,7 +140,8 @@ export class CsvToLayer implements ICsvToLayer {
         //console.log(x, `value=${data[x]}`, `lng=${_x}`, `lat=${_y}`);
         //this.FeatureCollection.features.push(this.createFeature({lat:_y, lng:_x},{value:_value, color: this.getColor(_value)}))
       } else {
-        this.FeatureCollection.features.push(this.createFeature({ lat: _y, lng: _x }, { value: _value, color: this.getColor(_value) }))
+        //this.FeatureCollection.features.push(this.createPointFeature({ lat: _y, lng: _x }, { value: _value, color: this.getColor(_value) }))
+        this.FeatureCollection.features.push(this.createPolyFeature({ lat: _y, lng: _x }, { value: _value, color: this.getColor(_value) }))
       }
       _x += cellsize;
 
@@ -142,7 +149,7 @@ export class CsvToLayer implements ICsvToLayer {
   }
 
 
-  createFeature(point: { lat: number, lng: number }, attributes: Object) {
+  createPointFeature(point: { lat: number, lng: number }, attributes: Object) {
     return {
       "type": "Feature",
       "properties": attributes,
@@ -154,6 +161,28 @@ export class CsvToLayer implements ICsvToLayer {
         ]
       }
     };
+  }
+
+  createPolyFeature(point: { lat: number, lng: number }, attributes: Object) {
+    return {
+      "type": "Feature",
+      "properties": attributes,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          this.drawCell(point.lng,point.lat, 0.5)
+        ]
+      }
+    };
+  }
+
+  drawCell(x: number, y: number, radius: number) {
+    var x_min = x - radius, x_max = x + radius,
+      y_min = y - radius, y_max = y + radius;
+    var poly = [
+        [x_min, y_max], [x_max, y_max], [x_max, y_min], [x_min, y_min], [x_min, y_max]
+    ];
+    return poly;
   }
 
 }

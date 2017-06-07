@@ -22,7 +22,8 @@ ol.layer.Grid = function(options: any) {
 
 
 };
-ol.inherits(ol.layer.Grid, ol.layer.Vector);
+//ol.inherits(ol.layer.Grid, ol.layer.Vector);
+ol.inherits(ol.layer.Grid, ol.layer.Image);
 
 ol.layer.Grid.prototype.drawCell = function(x: number, y: number, radius: number) {
     var x_min = x - radius, x_max = x + radius,
