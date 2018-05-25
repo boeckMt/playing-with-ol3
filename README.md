@@ -1,5 +1,5 @@
-# playing with ol3
-#### repo for openlayers3 examples
+# playing with OpenLayers
+
 
 - https://openlayers.org/
-- http://turfjs.org/
+
