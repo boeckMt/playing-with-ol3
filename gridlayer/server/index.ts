@@ -23,13 +23,11 @@ var createServer = (app) => {
   return server;
 };
 
-/*
+
 var proxy = (req, res)=>{
     //modify the url in any way you want
-    let port = 8001;
-    console.log(`proxy for king ${port}`);
     console.log(req.url);
-    var apiServerHost = `http://king.eoc.dlr.de:${port}`;
+    var apiServerHost = `https://ahocevar.com/geoserver/wms`;
     var url = apiServerHost + req.url;
     var newReq = request(url);
     newReq.on('error',(error)=>{
@@ -37,12 +35,12 @@ var proxy = (req, res)=>{
     })
     req.pipe(newReq).pipe(res);
 };
-*/
+
 
 var server_instance = new (createServer as any)(express());
 
 
-//server_instance.app.use('/proxy', proxy);
+server_instance.app.use('/proxy', proxy);
 
 server_instance.app.route('/data').get((req, res) => {
   var _date = req.param('date');

@@ -28,7 +28,7 @@ var placesSource = new ol.source.Vector({
 // create baselayer and Map
 var raster = new ol.layer.Tile({
   source: new ol.source.TileWMS({
-    url: 'https://ahocevar.com/geoserver/wms',
+    url: '/proxy',
     params: {
       'LAYERS': 'ne:NE1_HR_LC_SR_W_DR',
       'TILED': true
@@ -43,6 +43,7 @@ var map = new ol.Map({
   //layers: [raster, places],
   layers: [raster],
   target: 'map',
+  renderer: 'webgl',
   view: new ol.View({
     projection: epsg,
     center: [0, 0],
@@ -56,14 +57,41 @@ $.get(`http://localhost:9001/data?date=${urlParam}`, (data) => {
   console.log(data);
   let pontsjson = data
 
-  var placesSource = new ol.source.Vector({
-    features: GEOJSON.readFeatures(pontsjson),
-    wrapX: false
-  });
+  /*
+    var placesSource = new ol.source.Vector({
+      features: GEOJSON.readFeatures(pontsjson),
+      wrapX: false
+    });
+
   var places = new ol.layer.Grid({
     source: placesSource,
     id: "places"
   })
+  */
+
+
+
+  var places = new ol.layer.Image({
+    source: new ol.source.ImageVector({
+      source: new ol.source.Vector({
+        features: GEOJSON.readFeatures(pontsjson),
+        wrapX: false
+      }),
+      style: (feature, resolution) => {
+        var value = feature.get('value');
+        var color = feature.get('color');
+
+        var fill = new ol.style.Fill();
+        var style = new ol.style.Style({
+          fill: fill
+        });
+
+        fill.setColor(color);
+
+        return style;
+      },
+    })
+  });
 
   map.addLayer(places);
 });
@@ -71,6 +99,7 @@ $.get(`http://localhost:9001/data?date=${urlParam}`, (data) => {
 
 
 //click on features
+/*
 map.on("click", (e) => {
   //forEachFeatureAtPixel(pixel, callback, opt_options)
   map.forEachFeatureAtPixel(e.pixel, (feature, layer) => {
@@ -84,3 +113,4 @@ map.on("click", (e) => {
     })
 
 });
+*/

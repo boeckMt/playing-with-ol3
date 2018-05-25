@@ -19,23 +19,19 @@ var createServer = function (app) {
     };
     return server;
 };
-/*
-var proxy = (req, res)=>{
+var proxy = function (req, res) {
     //modify the url in any way you want
-    let port = 8001;
-    console.log(`proxy for king ${port}`);
     console.log(req.url);
-    var apiServerHost = `http://king.eoc.dlr.de:${port}`;
+    var apiServerHost = "https://ahocevar.com/geoserver/wms";
     var url = apiServerHost + req.url;
     var newReq = request(url);
-    newReq.on('error',(error)=>{
-      res.status(500).send(error);
-    })
+    newReq.on('error', function (error) {
+        res.status(500).send(error);
+    });
     req.pipe(newReq).pipe(res);
 };
-*/
 var server_instance = new createServer(express());
-//server_instance.app.use('/proxy', proxy);
+server_instance.app.use('/proxy', proxy);
 server_instance.app.route('/data').get(function (req, res) {
     var _date = req.param('date');
     var filename = _csv.getFileFromDate(_date);
