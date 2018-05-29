@@ -14,4 +14,4 @@ testresults
 npm-debug.log
 *.map
 doc
-src/**/*.js
+app/**/*.js
