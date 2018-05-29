@@ -5,8 +5,11 @@ var app = express();
 app.use(express.static('app'))
 
 var proxy = (req, res)=>{
-  var proxyurl = 'https://geoservice.dlr.de/';
-  var requrl = req.originalUrl.replace('/proxy/','')
+  var proxyurl = 'https://';
+  var requrl = req.originalUrl.replace('/proxy/','');
+  if (requrl.indexOf('eoc/basemap/wms') !== -1){
+    proxyurl = 'https://geoservice.dlr.de/';
+  }
   req.pipe(request({
     url: requrl,
     baseUrl: proxyurl,

@@ -1,26 +1,30 @@
-//var color = [255,0,0,1]; //rgba(255, 0, 0, 1); rot
-var recolor = function(pixel) {
+var color = [170, 211, 223, 255];
+var recolor = function(pixel, data) {
   // 0 - 255
+  //console.log(data)
   let [r, g, b, a] = pixel;
-  r = 255; g = 0; b = 0;
+  let color = data.color;
+  if (color[0] == pixel[0]) {
+    let [r2, g2, b2, a2] =  color;
+    //r = r2; g = g2; b = b2;
+    r = 0; g = 0; b = 0; a = 0;
+  } else {
+    //r = 0; g = 0; b =0; a = 0;
+  }
 
   return [r, g, b, a];
 }
+//https://a.tile.openstreetmap.org/2/2/1.png
+var tilesource = new ol.source.XYZ({
+  url: 'proxy/{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+})
 
-var tilesource = new ol.source.TileWMS({
-  attributions: ['&copy; DLR/EOC'],
-  url: '/proxy/eoc/basemap/wms', //https://geoservice.dlr.de/eoc/basemap/wms
-  params: {
-    'LAYERS': 'osm_roads_gen3',
-  }
-});
-
-var roads_raster = new ol.source.Raster({
+var rastersource = new ol.source.Raster({
   sources: [
     tilesource
   ],
   operation: function(pixels, data) {
-    return recolor(pixels[0]);
+    return recolor(pixels[0], data);
   },
   lib: {
     recolor: recolor
@@ -28,7 +32,7 @@ var roads_raster = new ol.source.Raster({
 });
 
 /*
-var roads = new ol.layer.Tile({
+var rasterlayer = new ol.layer.Tile({
   extent: ol.proj.transformExtent([-20, 35, 30, 55], 'EPSG:4326', 'EPSG:3857'),
   source: tilesource
 })
@@ -36,9 +40,9 @@ var roads = new ol.layer.Tile({
 
 
 
-var roads = new ol.layer.Image({
+var rasterlayer = new ol.layer.Image({
   extent: ol.proj.transformExtent([-20, 35, 30, 55], 'EPSG:4326', 'EPSG:3857'),
-  source: roads_raster
+  source: rastersource
 })
 
 
@@ -47,7 +51,7 @@ var roads = new ol.layer.Image({
 var baselayer = new ol.layer.Tile({
   source: new ol.source.TileWMS({
     attributions: ['&copy; DLR/EOC'],
-    url: 'https://geoservice.dlr.de/eoc/basemap/wms',
+    url: 'proxy/eoc/basemap/wms',
     params: {
       'LAYERS': 'litemap',
     }
@@ -59,7 +63,7 @@ var baselayer = new ol.layer.Tile({
 var map = new ol.Map({
   layers: [
     baselayer,
-    roads,
+    rasterlayer,
   ],
   target: 'map',
   view: new ol.View({
@@ -71,21 +75,41 @@ var map = new ol.Map({
 
 var layerOnOff = function(event) {
   var layer: ol.layer.Base;
-  if (this.id == 'affect-roads') {
-    layer = roads;
+  if (this.id == 'affect-rasterlayer') {
+    layer = rasterlayer;
   }
-  console.log(layer.setVisible(!layer.getVisible()));
+  //console.log(layer.setVisible(!layer.getVisible()));
 }
 
 // Get the form elements and bind the listeners
-var select = <HTMLInputElement>document.getElementById('blend-mode');
-var check_roads = document.getElementById('affect-roads');
-check_roads.addEventListener('click', layerOnOff);
-console.log('start value', select.value)
+var check_rasterlayer = document.getElementById('affect-rasterlayer');
+check_rasterlayer.addEventListener('click', layerOnOff);
 
 
+var coordinate;
 
-// Rerender map when blend mode changes
-select.addEventListener('change', () => {
-  map.render();
+map.on('click', function(event) {
+  coordinate = event.coordinate;
+  rastersource.changed();
+});
+
+
+//get color from coordinate
+rasterlayer.on('postcompose', function(event) {
+  var ctx = event.context;
+  var pixelRatio = event.frameState.pixelRatio;
+  //console.log(coordinate)
+  if (coordinate) {
+    let pixel = map.getPixelFromCoordinate(coordinate)
+    let x = pixel[0] * pixelRatio;
+    let y = pixel[1] * pixelRatio;
+    let data = ctx.getImageData(x, y, 1, 1).data;
+    color = data;
+    //console.log(color)
+  }
+});
+
+rastersource.on('beforeoperations', function(event) {
+  // the event.data object will be passed to operations
+  event.data.color = color;
 });
